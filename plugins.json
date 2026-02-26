@@ -1,0 +1,16 @@
+[
+    {
+        "repo": "aloha-desktop/aloha-internet-search",
+        "name": "Internet Search",
+        "author": "Aloha",
+        "description": "Enables AI to augment the response with internet search results",
+        "icon": "https://raw.githubusercontent.com/aloha-desktop/aloha-internet-search/refs/heads/main/public/icon.svg"
+    },
+    {
+        "repo": "aloha-desktop/aloha-visit-website",
+        "name": "Web Browser",
+        "author": "Aloha",
+        "description": "The agent can visit a website url on the internet directly to provide more accurate results",
+        "icon": "https://raw.githubusercontent.com/aloha-desktop/aloha-visit-website/refs/heads/main/public/icon.svg"
+    }
+]

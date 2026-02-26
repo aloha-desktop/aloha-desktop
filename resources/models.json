@@ -1,0 +1,47 @@
+[
+  {
+      "name": "qwen3",
+      "description": "Open-source model from Alibaba",
+      "tags": [
+          {
+              "name": "1.7b",
+              "guidance": "Switch to this model when responses are too slow."
+          },
+          {
+              "name": "4b",
+              "guidance": "Switch to this model when the quality of responses is not satisfactory."
+          },
+          {
+              "name": "8b",
+              "guidance": "Switch to this model for highest quality of responses. It requires powerful hardware acceleration (high end GPUs) for usable response speed."
+          }
+      ]
+  },
+  {
+      "name": "nemotron-mini",
+      "description": "Open-source model from NVIDIA",
+      "tags": [
+          {
+              "name": "4b"
+          }
+      ]
+  },
+  {
+      "name": "phi4-mini",
+      "description": "Open-source model from Microsoft",
+      "tags": [
+          {
+              "name": "3.8b"
+          }
+      ]
+  },
+  {
+      "name": "llama3.2",
+      "description": "Open-source model from Meta",
+      "tags": [
+          {
+              "name": "3b"
+          }
+      ]
+  }
+]

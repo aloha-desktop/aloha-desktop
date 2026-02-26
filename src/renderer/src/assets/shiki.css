@@ -1,0 +1,84 @@
+/**
+ * Lists
+ * -------------------------------------------------------------------------- */
+
+.markdown-it ul,
+.markdown-it ol {
+  padding-left: 1.25rem;
+  margin: 16px 0;
+}
+
+.markdown-it ul {
+  list-style: disc;
+}
+
+.markdown-it ol {
+  list-style: decimal;
+}
+
+.markdown-it li + li {
+  margin-top: 8px;
+}
+
+.markdown-it li > ol,
+.markdown-it li > ul {
+  margin: 8px 0 0;
+}
+
+/**
+ * Table
+ * -------------------------------------------------------------------------- */
+
+.markdown-it table {
+  display: block;
+  border-collapse: collapse;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.markdown-it tr {
+  border-top: 1px solid var(--vp-c-divider);
+  transition: background-color 0.5s;
+}
+
+.markdown-it tr:nth-child(2n) {
+  background-color: var(--vp-c-bg-soft);
+}
+
+.markdown-it th,
+.markdown-it td {
+  border: 1px solid var(--vp-c-divider);
+  padding: 8px 16px;
+}
+
+.markdown-it th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vp-c-text-2);
+  background-color: var(--vp-c-bg-soft);
+}
+
+.markdown-it td {
+  font-size: 14px;
+}
+
+/**
+ * Decorational elements
+ * -------------------------------------------------------------------------- */
+
+.markdown-it hr {
+  margin: 16px 0;
+  border: none;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.shiki {
+  background-color: var(--shiki-background) !important;
+}
+
+html.dark .shiki,
+html.dark .shiki code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
