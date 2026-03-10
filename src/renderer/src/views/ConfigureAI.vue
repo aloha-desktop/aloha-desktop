@@ -84,7 +84,7 @@
         <div class="text-xs text-muted-foreground mt-4">
           By using this app, you accept the
           <a
-            href="https://github.com/aloha-desktop/aloha-desktop?tab=MIT-1-ov-file"
+            href="https://github.com/aloha-desktop/aloha-desktop/blob/main/LICENSE"
             target="_blank"
             class="text-muted-foreground hover:text-white"
             >End User License Agreement</a

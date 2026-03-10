@@ -93,7 +93,7 @@ export default defineComponent({
               <p>Extendable AI assistant with tool calling capabilities</p>
               <p>
                 <a
-                  href="https://github.com/aloha-desktop/aloha-desktop?tab=MIT-1-ov-file"
+                  href="https://github.com/aloha-desktop/aloha-desktop/blob/main/LICENSE"
                   target="_blank"
                   class="text-muted-foreground hover:text-primary inline-flex items-center gap-1"
                 >
