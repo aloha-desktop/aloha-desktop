@@ -14,10 +14,10 @@ asarUnpack:
 win:
   executableName: aloha
   azureSignOptions:
-    publisherName: 'Aloha Desktop' # TODO: Update
+    publisherName: 'Adrian Matylewicz' # TODO: Update - courtesy of previous maintainer
     endpoint: 'https://eus.codesigning.azure.net/'
     certificateProfileName: 'AlohaDesktopCertProfile'
-    codeSigningAccountName: 'AlohaDesktop'
+    codeSigningAccountName: 'Aloha'
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
