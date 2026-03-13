@@ -15,7 +15,7 @@ win:
   executableName: aloha
   azureSignOptions:
     publisherName: 'Adrian Matylewicz' # TODO: Update - courtesy of previous maintainer
-    endpoint: 'https://eus.codesigning.azure.net/'
+    endpoint: 'https://wus.codesigning.azure.net/'
     certificateProfileName: 'AlohaDesktopCertProfile'
     codeSigningAccountName: 'Aloha'
 nsis:
