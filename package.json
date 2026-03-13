@@ -1,6 +1,6 @@
 {
   "name": "aloha-desktop",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Desktop AI Agent with tool calling capabilities",
   "type": "module",
   "main": "./out/main/index.js",
