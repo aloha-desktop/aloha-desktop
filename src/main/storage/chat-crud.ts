@@ -8,12 +8,16 @@ type DBChat = {
   uuid: string
   name: string
   createdAt: string
+  gatewayName: string
+  gatewayChannel: string
 }
 
 const schema: Record<keyof DBChat, string> = {
   uuid: 'TEXT NOT NULL', // In SQLite, you cannot add a PRIMARY KEY column after the table is created
   name: 'TEXT',
   createdAt: 'TEXT',
+  gatewayName: 'TEXT',
+  gatewayChannel: 'TEXT',
 }
 
 export function prepare(): void {
@@ -36,6 +40,27 @@ export function getChat(uuid: string): Chat | undefined {
     uuid: chat.uuid,
     name: chat.name,
     createdAt: chat.createdAt,
+    gatewayName: chat.gatewayName,
+    gatewayChannel: chat.gatewayChannel,
+  }
+}
+
+/** If multiple rows match, returns the chat with the latest createdAt. */
+export function getChatByGatewayAndChannel(gatewayName: string, gatewayChannel: string): Chat | undefined {
+  const chat = getInstance()
+    .prepare<[string, string], DBChat>(
+      `SELECT * FROM chats 
+       WHERE gatewayName = ? AND gatewayChannel = ?
+       ORDER BY createdAt DESC LIMIT 1`
+    )
+    .get(gatewayName, gatewayChannel)
+  if (!chat) return undefined
+  return {
+    uuid: chat.uuid,
+    name: chat.name,
+    createdAt: chat.createdAt,
+    gatewayName: chat.gatewayName,
+    gatewayChannel: chat.gatewayChannel,
   }
 }
 
@@ -43,12 +68,12 @@ export function updateChatName(uuid: string, name: string): void {
   getInstance().prepare('UPDATE chats SET name = ? WHERE uuid = ?').run(name, uuid)
 }
 
-export function createChat(name: string): Chat {
+export function createChat(name: string, gatewayName?: string, gatewayChannel?: string): Chat {
   const uuid = randomUUID()
 
   getInstance()
-    .prepare('INSERT INTO chats (uuid, name, createdAt) VALUES (?, ?, ?)')
-    .run(uuid, name, new Date().toISOString())
+    .prepare('INSERT INTO chats (uuid, name, createdAt, gatewayName, gatewayChannel) VALUES (?, ?, ?, ?, ?)')
+    .run(uuid, name, new Date().toISOString(), gatewayName ?? null, gatewayChannel ?? null)
 
   return getChat(uuid)!
 }

@@ -66,6 +66,7 @@ export default defineComponent({
       prompt: '',
       loading: false,
       removeChatTitleListener: () => {},
+      removeChatListChangedListener: () => {},
     }
   },
   computed: {
@@ -81,13 +82,18 @@ export default defineComponent({
   mounted() {
     this.loadAndScroll('instant')
     this.removeChatTitleListener = this.$electron.ipcRenderer.on('llm:chat-title', this.onChatTitle)
+    this.removeChatListChangedListener = this.$electron.ipcRenderer.on('llm:chat-list-changed', this.onChatListChanged)
   },
   beforeUnmount() {
     this.removeChatTitleListener()
+    this.removeChatListChangedListener()
   },
   methods: {
     onChatTitle(_: IpcRendererEvent, chatUuid: string, title: string) {
       this.chatsStore.updateChatName(chatUuid, title)
+    },
+    async onChatListChanged() {
+      await this.chatsStore.listChats()
     },
     async loadAndScroll(scrollBehavior: ScrollBehavior) {
       await this.chatsStore.listChats()

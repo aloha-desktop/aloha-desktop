@@ -1,11 +1,11 @@
 import { ProgressStatus } from '@common/types/progress'
-import { WindowEmitter } from '../window-emitter'
+import { windowEmitter } from '../window-emitter'
 
 /**
  * ProgressMap - Manages progress tracking for various resources
  * Provides centralized progress management with window notification support
  */
-class ProgressMap extends WindowEmitter {
+class ProgressMap {
   private registry: Map<string, ProgressStatus> = new Map<string, ProgressStatus>()
 
   get(resourceKey: string): ProgressStatus | null {
@@ -69,7 +69,7 @@ class ProgressMap extends WindowEmitter {
    * Notify all registered windows of a progress update
    */
   private updateProgress(resourceKey: string, status: ProgressStatus): void {
-    this.emitToAllWindows('progress:update', resourceKey, status)
+    windowEmitter.emitToAllListeners('progress:update', resourceKey, status)
   }
 }
 

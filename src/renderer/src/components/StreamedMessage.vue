@@ -16,7 +16,7 @@
       v-else-if="message.role === 'tool'"
       class="flex flex-col mx-2 text-sm select-text leading-relaxed overflow-x-hidden"
     >
-      <ToolCallMessage :title="`Used ${message.metadata?.displayName || ''}`" :content="message.content">
+      <ToolCallMessage :title="`Used ${message.metadata?.displayName || 'a tool'}`" :content="message.content">
         <template #icon>
           <ToolIcon :tool-name="`${message.metadata?.name || ''}`" />
         </template>

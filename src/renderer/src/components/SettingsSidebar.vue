@@ -38,6 +38,16 @@ const data = {
       ],
     },
     {
+      title: 'Communication',
+      url: '/settings/gateway',
+      items: [
+        {
+          title: 'Gateway',
+          url: '/settings/gateway',
+        },
+      ],
+    },
+    {
       title: 'General',
       url: '/settings/about',
       items: [

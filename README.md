@@ -13,6 +13,7 @@ Get Aloha Desktop on [alohadesktop.com](https://alohadesktop.com/)
 - [Plugin Development Docs](https://docs.alohadesktop.com/)
 - [SDK](https://github.com/aloha-desktop/aloha-sdk)
 - [Vite Template](https://github.com/aloha-desktop/vite-aloha)
+- [Desktop App Developer Context](https://github.com/aloha-desktop/aloha-desktop/blob/main/DEVELOPMENT.md)
 - [EULA](https://github.com/aloha-desktop/aloha-desktop/blob/main/LICENSE)
 
 ## Issues

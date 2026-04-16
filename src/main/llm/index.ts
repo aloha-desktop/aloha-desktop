@@ -1,5 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron'
-import { useChatRunner } from './chat-runner'
+import { ipcMain } from 'electron'
 import { listModels } from './list-models'
 import { listChats } from './list-chats'
 import { listMessages } from './list-messages'
@@ -16,7 +15,6 @@ import { pullModel } from './pull-model'
 import { isEngineBuiltin } from './is-engine-builtin'
 import { engineVersion } from './engine-version'
 import { getModelDetails, getAllModelDetails, hasCapability, getModelsByCapability } from './model-details'
-import { useActiveChats } from './active-chats'
 import { abortChat } from './abort-chat'
 import { isChatActive } from './is-chat-active'
 import { chatRun } from './chat-run'
@@ -51,12 +49,4 @@ export function useLLM(): void {
   ipcMain.handle('llm:abort-chat', (_: IpcMainInvokeEvent, chatUuid: string) => abortChat(chatUuid))
   ipcMain.handle('llm:is-chat-active', (_: IpcMainInvokeEvent, chatUuid: string) => isChatActive(chatUuid))
   ipcMain.handle('llm:chat-run', (_: IpcMainInvokeEvent, chatUuid: string) => chatRun(chatUuid))
-}
-
-export function useLLMWindow(browserWindow: BrowserWindow): void {
-  // Register this window to receive chat state updates
-  useActiveChats(browserWindow)
-
-  // Register this window to receive chat thread updates
-  useChatRunner(browserWindow)
 }

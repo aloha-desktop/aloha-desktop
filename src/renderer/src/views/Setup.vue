@@ -72,6 +72,10 @@ export default defineComponent({
         await this.$nextTick()
         await this.$electron.ipcRenderer.invoke('plugins:load-enabled-plugins')
 
+        this.onHoldMessage = 'Initializing gateway...'
+        await this.$nextTick()
+        await this.$electron.ipcRenderer.invoke('gateway:initialize')
+
         this.onHoldMessage = 'Loading AI...'
         await this.$nextTick()
         const isRunning = await this.$electron.ipcRenderer.invoke('llm:is-running')

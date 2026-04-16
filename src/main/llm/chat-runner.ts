@@ -1,4 +1,3 @@
-import { BrowserWindow } from 'electron'
 import ollama, { AbortableAsyncIterator, ToolCall } from 'ollama'
 import { ChatResponse } from 'ollama'
 import { getChat, updateChatName, DEFAULT_CHAT_NAME } from '../storage/chat-crud'
@@ -8,15 +7,15 @@ import { callTool, getToolDisplayName, getToolsManifest } from '../tools'
 import { getDefaultModel } from './default-model'
 import { getModelDetails } from './model-details'
 import { activeChats } from './active-chats'
-import { WindowEmitter } from '../window-emitter'
+import { windowEmitter } from '../window-emitter'
 import { Chat } from '@common/types/chat'
 import { DEFAULT_TITLE_GENERATION_PROMPT_TEMPLATE, DEFAULT_TITLE_GENERATION_PROMPT_THOUGHTS } from './templates'
 import { ModelDetails } from '@common/types/model-capability'
 import log from 'electron-log'
 
-class ChatRunner extends WindowEmitter {
+class ChatRunner {
   private emitChatGenerating(chatUuid: string): void {
-    this.emitToAllWindows('llm:chat-generating', chatUuid)
+    windowEmitter.emitToAllListeners('llm:chat-generating', chatUuid)
   }
 
   async emitStream(model: string, chatUuid: string, stream: AbortableAsyncIterator<ChatResponse>): Promise<boolean> {
@@ -86,7 +85,7 @@ class ChatRunner extends WindowEmitter {
           toolCalls.push(...chunk.message.tool_calls)
         }
 
-        this.emitToAllWindows(
+        windowEmitter.emitToAllListeners(
           'llm:chat-message',
           chatMessage,
           contentChunks, // emit entire contentChunks array
@@ -125,7 +124,7 @@ class ChatRunner extends WindowEmitter {
           this.emitChatGenerating(chatUuid)
           const result = await callTool(toolCall)
           const responseMessage = createMessage(model, 'tool', `${result}`, chatUuid, metadata)
-          this.emitToAllWindows(
+          windowEmitter.emitToAllListeners(
             'llm:chat-message',
             responseMessage,
             [responseMessage.content], // emit as array to match new format
@@ -144,7 +143,7 @@ class ChatRunner extends WindowEmitter {
             chatUuid,
             metadata
           )
-          this.emitToAllWindows(
+          windowEmitter.emitToAllListeners(
             'llm:chat-message',
             errorMessage,
             [errorMessage.content], // emit as array to match new format
@@ -252,14 +251,9 @@ class ChatRunner extends WindowEmitter {
 
     updateChatName(chat.uuid, title)
 
-    this.emitToAllWindows('llm:chat-title', chat.uuid, title)
+    windowEmitter.emitToAllListeners('llm:chat-title', chat.uuid, title)
   }
 }
 
 // Export singleton instance
 export const chatRunner = new ChatRunner()
-
-export function useChatRunner(browserWindow: BrowserWindow): void {
-  // Register this window to receive chat updates
-  chatRunner.registerWindow(browserWindow)
-}

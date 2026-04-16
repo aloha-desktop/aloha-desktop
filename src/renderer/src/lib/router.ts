@@ -13,6 +13,7 @@ import AIModelSettings from '@renderer/views/settings/AIModelSettings.vue'
 import AIEngineSettings from '@renderer/views/settings/AIEngineSettings.vue'
 import AIModelPullSettings from '@renderer/views/settings/AIModelPullSettings.vue'
 import About from '@renderer/views/settings/About.vue'
+import GatewaySettings from '@renderer/views/settings/GatewaySettings.vue'
 
 const routes = [
   { path: '/', redirect: '/setup' },
@@ -43,6 +44,7 @@ const routes = [
       { path: 'ai-model', component: AIModelSettings },
       { path: 'ai-engine', component: AIEngineSettings },
       { path: 'ai-model-pull', component: AIModelPullSettings },
+      { path: 'gateway', component: GatewaySettings },
       { path: 'about', component: About },
     ],
   },

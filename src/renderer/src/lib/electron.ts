@@ -38,6 +38,12 @@ export interface AgentElectronAPI extends ElectronAPI {
     invoke(channel: 'updater:check-for-updates'): Promise<void>
     invoke(channel: 'setup:skip-welcome'): Promise<boolean>
     invoke(channel: 'setup:set-skip-welcome', isSkipWelcome: boolean): Promise<void>
+    invoke(channel: 'gateway:get-supported-gateways'): Promise<string[]>
+    invoke(channel: 'gateway:set-gateway', gatewayName: string): Promise<void>
+    invoke(channel: 'gateway:get-gateway'): Promise<string>
+    invoke(channel: 'gateway:initialize'): Promise<void>
+    invoke(channel: 'gateway:get-pairing-code'): Promise<string>
+    invoke(channel: 'gateway:get-status'): Promise<string>
     on(
       channel: 'llm:chat-message',
       listener: (
@@ -64,6 +70,11 @@ export interface AgentElectronAPI extends ElectronAPI {
       listener: (event: IpcRendererEvent, resourceKey: string, progressStatus: ProgressStatus) => void
     ): () => void
     on(channel: 'updater:on-status-change', listener: (event: IpcRendererEvent, status: string) => void): () => void
+    on(
+      channel: 'gateway:pairing-code',
+      listener: (event: IpcRendererEvent, gatewayName: string, pairingCodeType: string, pairingCode: string) => void
+    ): () => void
+    on(channel: 'gateway:status', listener: (event: IpcRendererEvent, status: string) => void): () => void
   }
 }
 

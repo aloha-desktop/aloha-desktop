@@ -3,12 +3,14 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { useTerminal } from './terminal'
-import { useLLMWindow, useLLM } from './llm'
+import { useLLM } from './llm'
 import { useStorage } from './storage'
 import { usePlugins } from './plugins'
-import { useProgressWindow, useProgress } from './progress'
-import { useUpdaterWindow, useUpdater } from './updater'
+import { useProgress } from './progress'
+import { useUpdater } from './updater'
 import { useSetup } from './setup'
+import { useGateway } from './gateway'
+import { windowEmitter } from './window-emitter'
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -25,9 +27,7 @@ function createWindow(): BrowserWindow {
     },
   })
 
-  useLLMWindow(mainWindow)
-  useProgressWindow(mainWindow)
-  useUpdaterWindow(mainWindow)
+  windowEmitter.registerWindow(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -86,6 +86,7 @@ app.whenReady().then(async () => {
   useProgress()
   useUpdater()
   useSetup()
+  useGateway()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

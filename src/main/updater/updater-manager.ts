@@ -1,6 +1,6 @@
 import electronUpdater from 'electron-updater'
 import log from 'electron-log'
-import { WindowEmitter } from '../window-emitter'
+import { windowEmitter } from '../window-emitter'
 
 const { autoUpdater } = electronUpdater
 autoUpdater.logger = log
@@ -9,12 +9,8 @@ autoUpdater.logger = log
  * UpdaterManager - Manages application updates and window notifications
  * Provides centralized auto-updater management with window notification support
  */
-class UpdaterManager extends WindowEmitter {
+class UpdaterManager {
   private currentStatus: string = 'Up to date 👍'
-
-  constructor() {
-    super()
-  }
 
   getCurrentStatus(): string {
     return this.currentStatus
@@ -26,7 +22,7 @@ class UpdaterManager extends WindowEmitter {
   private updateStatus(status: string): void {
     log.info('updateStatus', status)
     this.currentStatus = status
-    this.emitToAllWindows('updater:on-status-change', status)
+    windowEmitter.emitToAllListeners('updater:on-status-change', status)
   }
 
   /**

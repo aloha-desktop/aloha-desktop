@@ -25,16 +25,20 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux",
-    "rebuild": "electron-rebuild -f -w better-sqlite3"
+    "rebuild": "electron-rebuild -f -w better-sqlite3,bufferutil,utf-8-validate"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
+    "baileys": "^7.0.0-rc.9",
     "better-sqlite3": "^12.1.0",
+    "bufferutil": "^4.1.0",
     "electron-log": "^5.4.3",
-    "electron-updater": "^6.3.9"
+    "electron-updater": "^6.3.9",
+    "utf-8-validate": "^6.0.6"
   },
   "devDependencies": {
+    "@cacheable/node-cache": "^3.0.0",
     "@electron-toolkit/eslint-config-prettier": "3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
@@ -49,6 +53,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/mime-types": "^3.0.1",
     "@types/node": "^22.14.1",
+    "@types/qrcode": "^1.5.6",
     "@types/tar": "^6.1.13",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vueuse/core": "^13.7.0",
@@ -69,6 +74,7 @@
     "ollama": "^0.5.16",
     "pinia": "^3.0.3",
     "prettier": "^3.5.3",
+    "qrcode": "^1.5.4",
     "reka-ui": "^2.4.1",
     "shiki": "^3.7.0",
     "shiki-header-with-copy": "^1.0.1",
