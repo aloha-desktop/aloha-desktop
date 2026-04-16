@@ -39,8 +39,9 @@ export interface AgentElectronAPI extends ElectronAPI {
     invoke(channel: 'setup:skip-welcome'): Promise<boolean>
     invoke(channel: 'setup:set-skip-welcome', isSkipWelcome: boolean): Promise<void>
     invoke(channel: 'gateway:get-supported-gateways'): Promise<string[]>
-    invoke(channel: 'gateway:set-gateway', gatewayName: string): Promise<void>
-    invoke(channel: 'gateway:get-gateway'): Promise<string>
+    invoke(channel: 'gateway:register', gatewayName: string): Promise<void>
+    invoke(channel: 'gateway:deregister'): Promise<void>
+    invoke(channel: 'gateway:get-current'): Promise<string>
     invoke(channel: 'gateway:initialize'): Promise<void>
     invoke(channel: 'gateway:get-pairing-code'): Promise<string>
     invoke(channel: 'gateway:get-status'): Promise<string>

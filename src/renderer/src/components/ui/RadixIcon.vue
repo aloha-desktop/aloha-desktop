@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { icons } from '@iconify-json/radix-icons'
-import { defineProps, useAttrs } from 'vue'
+import { useAttrs } from 'vue'
 
 const props = defineProps<{
   icon: string

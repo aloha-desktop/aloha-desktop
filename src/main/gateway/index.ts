@@ -12,16 +12,12 @@ let gatewayInstance: Gateway | null = null
 
 export function useGateway(): void {
   ipcMain.handle('gateway:get-supported-gateways', () => Object.keys(SUPPORTED_GATEWAYS))
-  ipcMain.handle('gateway:set-gateway', (_event, gatewayName: string) => {
-    if (!SUPPORTED_GATEWAYS[gatewayName]) {
-      throw new Error(`Gateway ${gatewayName} not supported`)
-    }
-    setGateway(gatewayName)
-  })
-  ipcMain.handle('gateway:get-gateway', () => getGateway())
+  ipcMain.handle('gateway:register', (_event, gatewayName: string) => registerGateway(gatewayName))
+  ipcMain.handle('gateway:get-current', () => getGateway())
   ipcMain.handle('gateway:initialize', () => initializeGateway())
-  ipcMain.handle('gateway:get-pairing-code', () => gatewayInstance?.getPairingCode())
-  ipcMain.handle('gateway:get-status', () => gatewayInstance?.getStatus())
+  ipcMain.handle('gateway:deregister', () => deregisterGateway())
+  ipcMain.handle('gateway:get-pairing-code', () => gatewayInstance?.getPairingCode() || '')
+  ipcMain.handle('gateway:get-status', () => gatewayInstance?.getStatus() || '')
 }
 
 export async function initializeGateway(): Promise<void> {
@@ -41,6 +37,19 @@ export async function initializeGateway(): Promise<void> {
     log.error(`Failed to initialized gateway: ${gatewayName}`, err)
     throw err
   }
+}
+
+export async function registerGateway(gatewayName: string): Promise<void> {
+  if (!SUPPORTED_GATEWAYS[gatewayName]) {
+    throw new Error(`Gateway ${gatewayName} not supported`)
+  }
+  setGateway(gatewayName)
+}
+
+export async function deregisterGateway(): Promise<void> {
+  await gatewayInstance?.destroy()
+  await setGateway('')
+  gatewayInstance = null
 }
 
 export function getGatewayInstance(): Gateway | null {

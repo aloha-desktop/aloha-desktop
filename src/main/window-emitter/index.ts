@@ -22,7 +22,7 @@ export class WindowEmitter {
     }
   }
 
-  registerGateway(gateway: Gateway): void {
+  registerGateway(gateway: Gateway | null): void {
     this.gateway = gateway
   }
 

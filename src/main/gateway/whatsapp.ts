@@ -1,4 +1,3 @@
-import { Chat } from '@common/types/chat'
 import { createChat } from '../llm/create-chat'
 import { createMessage } from '../llm/create-message'
 import { chatRun } from '../llm/chat-run'
@@ -6,6 +5,7 @@ import { findChatByGatewayAndChannel } from '../llm/find-chat-by-gateway'
 import { Gateway } from './gateway'
 import NodeCache from '@cacheable/node-cache'
 import os from 'os'
+import fs from 'fs/promises'
 import { windowEmitter } from '../window-emitter'
 import {
   WASocket,
@@ -21,6 +21,8 @@ import log from 'electron-log'
 import { ToolCall } from 'ollama/dist/index.cjs'
 import { ChatMessage } from '@common/types/chat-message'
 import { getChat } from '../storage/chat-crud'
+import path from 'path'
+import { app } from 'electron'
 
 export const WHATSAPP_GATEWAY_NAME = 'whatsapp'
 const REINITIALIZE_TIMOUT = 15000 // 15 seconds
@@ -31,6 +33,7 @@ export class WhatsAppGateway extends Gateway {
   private qrCode?: string = ''
   private status?: string
   private computerName: string = os.hostname()
+  private authStatePath = path.join(app.getPath('userData'), 'whatsapp-auth-state')
 
   // external map to store retry counts of messages when decryption/encryption fails
   // keep this out of the socket itself, so as to prevent a message decryption/encryption loop across socket restarts
@@ -38,7 +41,7 @@ export class WhatsAppGateway extends Gateway {
 
   async initialize(): Promise<void> {
     const { default: makeWASocket } = await import('baileys')
-    const { state, saveCreds } = await useMultiFileAuthState('baileys-auth-info')
+    const { state, saveCreds } = await useMultiFileAuthState(this.authStatePath)
 
     const { version, error, isLatest } = await fetchLatestBaileysVersion()
     log.debug('[WhatsAppGateway] ', version, isLatest, error)
@@ -57,7 +60,7 @@ export class WhatsAppGateway extends Gateway {
         },
       })
     } catch (err) {
-      log.error('[WhatsAppGateway] Unexpected socket error, reconnecting in 5 sec.', err)
+      log.error('[WhatsAppGateway] Unexpected socket error, reconnecting.', err)
       await new Promise((resolve) => setTimeout(resolve, REINITIALIZE_TIMOUT))
       return this.initialize()
     }
@@ -73,13 +76,19 @@ export class WhatsAppGateway extends Gateway {
           if (connection === 'close') {
             // reconnect if not logged out
             const error = lastDisconnect?.error
-            if (error && 'output' in error && error.output.statusCode !== DisconnectReason.loggedOut) {
+            const errorCode: number = error && 'output' in error ? error.output.statusCode : 0
+            if (errorCode === DisconnectReason.loggedOut) {
+              this.status = connection
+              log.info('[WhatsAppGateway] Connection closed. You are logged out.')
+              this.destroy()
+            } else if (errorCode === DisconnectReason.restartRequired) {
+              this.status = connection
+              log.info('[WhatsAppGateway] Connection closed. Restart required.')
+              this.initialize()
+            } else {
               this.status = error?.message
               await new Promise((resolve) => setTimeout(resolve, REINITIALIZE_TIMOUT))
               this.initialize()
-            } else {
-              this.status = connection
-              log.info('[WhatsAppGateway] Connection closed. You are logged out.')
             }
           } else if (connection === 'open') {
             const groups = await this.sock!.groupFetchAllParticipating()
@@ -105,7 +114,7 @@ export class WhatsAppGateway extends Gateway {
           // Pairing code
           if (qr) {
             this.qrCode = qr
-            windowEmitter.emitToAllListeners('gateway:pairing-code', WHATSAPP_GATEWAY_NAME, 'qr', qr)
+            windowEmitter.emitToAllListeners('gateway:pairing-code', WHATSAPP_GATEWAY_NAME, 'qr', this.qrCode)
           }
         }
 
@@ -139,6 +148,17 @@ export class WhatsAppGateway extends Gateway {
     windowEmitter.registerGateway(this)
   }
 
+  async destroy(): Promise<void> {
+    this.sock?.logout()
+    this.sock = undefined
+    this.groupId = undefined
+    this.qrCode = undefined
+    windowEmitter.emitToAllListeners('gateway:status', this.status)
+    windowEmitter.emitToAllListeners('gateway:pairing-code', WHATSAPP_GATEWAY_NAME, 'qr', this.qrCode)
+    windowEmitter.registerGateway(null)
+    await fs.rm(this.authStatePath, { recursive: true, force: true })
+  }
+
   getPairingCode(): string | null {
     return this.qrCode || null
   }
@@ -162,11 +182,11 @@ export class WhatsAppGateway extends Gateway {
     await chatRun(chat.uuid)
   }
 
-  async startNewThread(originalMsg: WAMessage): Promise<Chat | null> {
+  async startNewThread(originalMsg: WAMessage): Promise<void> {
     const text = originalMsg.message?.conversation || originalMsg.message?.extendedTextMessage?.text
 
     if (!text) {
-      return null // no text in message
+      return // no text in message
     }
 
     // create new group
@@ -188,8 +208,7 @@ export class WhatsAppGateway extends Gateway {
       throw new Error('Failed to create chat')
     }
 
-    chatRun(chat.uuid)
-    return chat
+    await chatRun(chat.uuid)
   }
 
   async sendMessage(channel: string, ...args: unknown[]): Promise<void> {

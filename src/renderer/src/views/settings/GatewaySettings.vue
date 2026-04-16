@@ -48,7 +48,7 @@ export default defineComponent({
 
     this.pairingCodeUnsubscribe = this.$electron.ipcRenderer.on(
       'gateway:pairing-code',
-      async (_event, gatewayName, type, code) => {
+      async (_event, gatewayName, _type, code) => {
         if (this.currentGateway === gatewayName && code) {
           await this.generateQRCode(code)
         }
@@ -64,8 +64,8 @@ export default defineComponent({
       this.loadingGateways = true
       try {
         this.supportedGateways = await this.$electron.ipcRenderer.invoke('gateway:get-supported-gateways')
-        this.currentGateway = await this.$electron.ipcRenderer.invoke('gateway:get-gateway')
-        this.gatewayStatus = (await this.$electron.ipcRenderer.invoke('gateway:get-status')) || ''
+        this.currentGateway = await this.$electron.ipcRenderer.invoke('gateway:get-current')
+        this.gatewayStatus = await this.$electron.ipcRenderer.invoke('gateway:get-status')
 
         if (this.currentGateway && this.gatewayStatus !== 'open') {
           await this.checkPairingCode()
@@ -100,15 +100,28 @@ export default defineComponent({
     async enableGateway(gateway: string) {
       this.loadingGatewayChange = true
       try {
-        await this.$electron.ipcRenderer.invoke('gateway:set-gateway', gateway)
+        await this.$electron.ipcRenderer.invoke('gateway:register', gateway)
         this.currentGateway = gateway
         await this.$electron.ipcRenderer.invoke('gateway:initialize')
-        this.gatewayStatus = (await this.$electron.ipcRenderer.invoke('gateway:get-status')) || ''
+        this.gatewayStatus = await this.$electron.ipcRenderer.invoke('gateway:get-status')
         if (this.gatewayStatus !== 'open') {
           await this.checkPairingCode()
         }
       } catch (error) {
         console.error('Failed to enable gateway:', error)
+      } finally {
+        this.loadingGatewayChange = false
+      }
+    },
+    async disableGateway() {
+      this.loadingGatewayChange = true
+      try {
+        await this.$electron.ipcRenderer.invoke('gateway:deregister')
+        this.currentGateway = ''
+        this.gatewayStatus = ''
+        this.pairingCodeDataUrl = ''
+      } catch (error) {
+        console.error('Failed to disable gateway:', error)
       } finally {
         this.loadingGatewayChange = false
       }
@@ -138,7 +151,7 @@ export default defineComponent({
               <div
                 v-for="gateway in supportedGateways"
                 :key="gateway"
-                class="flex items-center justify-between p-3 border rounded-md"
+                class="flex items-center justify-start p-3 gap-x-3 border rounded-md"
               >
                 <div class="flex items-center gap-2">
                   <span class="font-medium capitalize">{{ gateway }}</span>
@@ -161,23 +174,19 @@ export default defineComponent({
 
         <!-- Current Gateway Status Section -->
         <Card v-if="currentGateway">
-          <CardHeader>
+          <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle
-              >Gateway Status: <span class="capitalize">{{ currentGateway }}</span></CardTitle
-            >
-          </CardHeader>
-          <CardContent class="flex flex-col gap-4">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-medium">Status:</span>
+              >Gateway Status:
               <Badge :variant="gatewayStatus === 'open' ? 'default' : 'secondary'" class="capitalize">
                 {{ gatewayStatus || 'Unknown' }}
-              </Badge>
-            </div>
-
-            <div
-              v-if="gatewayStatus !== 'open' && pairingCodeDataUrl"
-              class="flex flex-col items-center gap-2 mx-auto mt-4 p-4 border rounded-md bg-white w-max"
+              </Badge></CardTitle
             >
+            <Button variant="destructive" size="sm" :disabled="loadingGatewayChange" @click="disableGateway">
+              Disconnect
+            </Button>
+          </CardHeader>
+          <CardContent v-if="gatewayStatus !== 'open' && pairingCodeDataUrl" class="flex flex-col gap-4">
+            <div class="flex flex-col items-center gap-2 mx-auto mt-4 p-4 border rounded-md bg-white w-max">
               <span class="text-sm font-medium text-black text-center">Scan QR Code to Link</span>
               <img :src="pairingCodeDataUrl" alt="Pairing QR Code" class="w-64 h-64" />
             </div>
