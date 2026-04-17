@@ -40,6 +40,9 @@ export class WhatsAppGateway extends Gateway {
   private msgRetryCounterCache: CacheStore = new NodeCache() as CacheStore
 
   async initialize(): Promise<void> {
+    if (this.status === 'connected') {
+      return
+    }
     const { default: makeWASocket } = await import('baileys')
     const { state, saveCreds } = await useMultiFileAuthState(this.authStatePath)
 
