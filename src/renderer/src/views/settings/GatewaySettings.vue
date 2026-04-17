@@ -7,6 +7,7 @@ import { Skeleton } from '@renderer/components/ui/skeleton'
 import SettingsHeader from '@renderer/components/SettingsHeader.vue'
 import { ScrollArea } from '@renderer/components/ui/scroll-area'
 import QRCode from 'qrcode'
+import { Settings, MoreVertical } from 'lucide-vue-next'
 
 export default defineComponent({
   name: 'GatewaySettings',
@@ -21,6 +22,8 @@ export default defineComponent({
     Skeleton,
     SettingsHeader,
     ScrollArea,
+    Settings,
+    MoreVertical,
   },
   data() {
     return {
@@ -185,8 +188,49 @@ export default defineComponent({
               Disconnect
             </Button>
           </CardHeader>
-          <CardContent v-if="gatewayStatus !== 'open' && pairingCodeDataUrl" class="flex flex-col gap-4">
-            <div class="flex flex-col items-center gap-2 mx-auto mt-4 p-4 border rounded-md bg-white w-max">
+          <CardContent
+            v-if="gatewayStatus !== 'open' && pairingCodeDataUrl"
+            class="flex flex-col md:flex-row gap-8 items-start mt-4"
+          >
+            <div v-if="currentGateway === 'whatsapp'" class="flex-1 space-y-4 text-base text-foreground mt-2">
+              <ol class="list-decimal list-outside ml-4 space-y-4">
+                <li class="pl-2">
+                  <span class="inline-flex items-center flex-wrap gap-1"
+                    >Open
+                    <svg viewBox="0 0 24 24" class="inline w-5 h-5 mx-0.5" fill="none">
+                      <rect width="24" height="24" rx="6" fill="#25D366" />
+                      <path
+                        d="M16.6 14.1c-.2-.1-1.2-.6-1.4-.7-.2-.1-.3-.1-.5.1-.1.2-.5.7-.6.8-.1.1-.3.2-.5.1-.2-.1-.9-.3-1.7-1-.6-.5-1-1.2-1.1-1.4-.1-.2 0-.3.1-.4.1-.1.2-.2.3-.3.1-.1.1-.2.2-.3.1-.1 0-.3-.1-.4-.1-.1-.5-1.1-.6-1.5-.1-.4-.3-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.7-.8 1.7s.8 2 1 2.2c.1.2 1.5 2.2 3.6 3.1.5.2.9.3 1.2.4.5.2 1 .1 1.4.1.4 0 1.2-.5 1.4-1 .2-.5.2-.9.1-1-.1-.2-.3-.2-.5-.3zm-4.1 5.3h0a6.8 6.8 0 0 1-3.5-1l-.2-.2-2.6.7.7-2.5-.2-.3a6.8 6.8 0 0 1-1-3.6c0-3.8 3.1-6.8 6.8-6.8 1.8 0 3.5.7 4.8 2 1.3 1.3 2 3 2 4.8-.1 3.7-3.2 6.8-6.9 6.8zm5.8-12.7A8.2 8.2 0 0 0 12.5 4.3C8 4.3 4.3 8 4.3 12.5c0 1.4.4 2.8 1.1 4L4.2 21l4.6-1.2a8.2 8.2 0 0 0 3.7.9h0c4.5 0 8.2-3.7 8.2-8.2a8.2 8.2 0 0 0-2.4-5.9z"
+                        fill="white"
+                      />
+                    </svg>
+                    <span class="font-bold">WhatsApp</span> on your phone
+                  </span>
+                </li>
+                <li class="pl-2">
+                  <span class="inline-flex items-center flex-wrap gap-1">
+                    Tap <span class="font-bold">Settings</span>
+                    <Settings class="inline w-5 h-5 text-muted-foreground mx-0.5" /> on iPhone, or
+                    <span class="font-bold">Menu</span>
+                    <MoreVertical class="inline w-5 h-5 text-muted-foreground mx-0.5" /> on Android
+                  </span>
+                </li>
+                <li class="pl-2">
+                  Tap <span class="font-bold">Linked devices</span> and then
+                  <span class="font-bold">Link a device</span>
+                </li>
+                <li class="pl-2">Point your phone at this screen to scan the QR code</li>
+                <li class="pl-2">
+                  Keep both apps open and connected to the internet (Wi-Fi, 4G or faster) until the connection is
+                  established.
+                </li>
+              </ol>
+            </div>
+
+            <div
+              class="flex flex-col items-center gap-2 p-4 border rounded-md bg-white w-max"
+              :class="currentGateway !== 'whatsapp' ? 'mx-auto' : ''"
+            >
               <span class="text-sm font-medium text-black text-center">Scan QR Code to Link</span>
               <img :src="pairingCodeDataUrl" alt="Pairing QR Code" class="w-64 h-64" />
             </div>
