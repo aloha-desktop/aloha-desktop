@@ -78,11 +78,11 @@ export class WhatsAppGateway extends Gateway {
             const error = lastDisconnect?.error
             const errorCode: number = error && 'output' in error ? error.output.statusCode : 0
             if (errorCode === DisconnectReason.loggedOut) {
-              this.status = connection
+              this.status = 'closed'
               log.info('[WhatsAppGateway] Connection closed. You are logged out.')
               this.destroy()
             } else if (errorCode === DisconnectReason.restartRequired) {
-              this.status = connection
+              this.status = 'closed'
               log.info('[WhatsAppGateway] Connection closed. Restart required.')
               this.initialize()
             } else {
@@ -104,7 +104,7 @@ export class WhatsAppGateway extends Gateway {
               this.groupId = existingGroup.id
             }
 
-            this.status = connection
+            this.status = 'connected'
           } else {
             this.status = connection
           }

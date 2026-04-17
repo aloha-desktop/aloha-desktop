@@ -42,7 +42,7 @@ export default defineComponent({
 
     this.statusUnsubscribe = this.$electron.ipcRenderer.on('gateway:status', (_event, status) => {
       this.gatewayStatus = status
-      if (status === 'open') {
+      if (status === 'connected') {
         this.pairingCodeDataUrl = ''
       } else {
         this.checkPairingCode()
@@ -70,7 +70,7 @@ export default defineComponent({
         this.currentGateway = await this.$electron.ipcRenderer.invoke('gateway:get-current')
         this.gatewayStatus = await this.$electron.ipcRenderer.invoke('gateway:get-status')
 
-        if (this.currentGateway && this.gatewayStatus !== 'open') {
+        if (this.currentGateway && this.gatewayStatus !== 'connected') {
           await this.checkPairingCode()
         }
       } catch (error) {
@@ -107,7 +107,7 @@ export default defineComponent({
         this.currentGateway = gateway
         await this.$electron.ipcRenderer.invoke('gateway:initialize')
         this.gatewayStatus = await this.$electron.ipcRenderer.invoke('gateway:get-status')
-        if (this.gatewayStatus !== 'open') {
+        if (this.gatewayStatus !== 'connected') {
           await this.checkPairingCode()
         }
       } catch (error) {
@@ -163,7 +163,7 @@ export default defineComponent({
                 <Button
                   v-if="currentGateway !== gateway"
                   :disabled="loadingGatewayChange"
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   @click="enableGateway(gateway)"
                 >
@@ -180,16 +180,16 @@ export default defineComponent({
           <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle
               >Gateway Status:
-              <Badge :variant="gatewayStatus === 'open' ? 'default' : 'secondary'" class="capitalize">
+              <Badge variant="secondary" class="capitalize">
                 {{ gatewayStatus || 'Unknown' }}
               </Badge></CardTitle
             >
             <Button variant="destructive" size="sm" :disabled="loadingGatewayChange" @click="disableGateway">
-              Disconnect
+              Log out
             </Button>
           </CardHeader>
           <CardContent
-            v-if="gatewayStatus !== 'open' && pairingCodeDataUrl"
+            v-if="gatewayStatus !== 'connected' && pairingCodeDataUrl"
             class="flex flex-col md:flex-row gap-8 items-start mt-4"
           >
             <div v-if="currentGateway === 'whatsapp'" class="flex-1 space-y-4 text-base text-foreground mt-2">
