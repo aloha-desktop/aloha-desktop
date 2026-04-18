@@ -21,3 +21,8 @@ These 2 dependencies contain electron-rebuilt node native modules. The `baileys`
 ### better-sqlite3
 
 `better-sqlite3` contain node native modules and needs to be externalized.
+
+### jimp
+
+`jimp` is added as image processing library for baileys. `sharp` can be used as an alternative.
+Without adding any the image processsing (like adding group profile picture) will fail.
