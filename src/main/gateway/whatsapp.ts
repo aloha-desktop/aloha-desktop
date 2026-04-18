@@ -103,6 +103,11 @@ export class WhatsAppGateway extends Gateway {
                 text: `Welcome to Aloha Desktop! You can chat with your "${this.computerName}" computer from here.`,
               })
               this.groupId = newGroup.id
+              // set group icon
+              const iconPath = app.isPackaged
+                ? path.join(process.resourcesPath, 'icon-white.png')
+                : path.join(app.getAppPath(), 'resources', 'icon-white.png')
+              await this.sock!.updateProfilePicture(this.groupId, { url: iconPath })
             } else {
               this.groupId = existingGroup.id
             }
@@ -149,6 +154,23 @@ export class WhatsAppGateway extends Gateway {
 
     // listen to events from the chat runner, we'll get them in send method
     windowEmitter.registerGateway(this)
+  }
+
+  extractEmoji(title: string): { emoji: string | null; title: string } {
+    const emojiRegex = /\p{Extended_Pictographic}(?:\u200D\p{Extended_Pictographic})*/u
+    const match = title.match(emojiRegex)
+    if (match) {
+      return { emoji: match[0], title: title.replace(match[0], '').trim() }
+    }
+    return { emoji: null, title }
+  }
+
+  emojiURL(emoji: string): string {
+    const codePoints = Array.from(emoji)
+      .map((ch) => ch.codePointAt(0)!.toString(16))
+      .filter((cp) => !['fe0f', 'fe0e'].includes(cp))
+    const fileName = `emoji_u${codePoints.join('_')}.png`
+    return `https://raw.githubusercontent.com/googlefonts/noto-emoji/refs/heads/main/png/72/${fileName}`
   }
 
   async destroy(): Promise<void> {
@@ -243,10 +265,15 @@ export class WhatsAppGateway extends Gateway {
         }
       }
     } else if (channel === 'llm:chat-title') {
-      const [chatUuid, title] = args as [string, string]
+      const [chatUuid, titleWithEmoji] = args as [string, string]
       const chat = getChat(chatUuid)
       if (chat && chat.gatewayName === WHATSAPP_GATEWAY_NAME && chat.gatewayChannel) {
+        const { title, emoji } = this.extractEmoji(titleWithEmoji)
         await this.sock!.groupUpdateSubject(chat.gatewayChannel, title)
+
+        if (emoji) {
+          await this.sock!.updateProfilePicture(chat.gatewayChannel, { url: this.emojiURL(emoji) })
+        }
       }
     }
   }
