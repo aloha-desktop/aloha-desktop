@@ -272,7 +272,14 @@ export class WhatsAppGateway extends Gateway {
         await this.sock!.groupUpdateSubject(chat.gatewayChannel, title)
 
         if (emoji) {
-          await this.sock!.updateProfilePicture(chat.gatewayChannel, { url: this.emojiURL(emoji) })
+          try {
+            await this.sock!.updateProfilePicture(chat.gatewayChannel, { url: this.emojiURL(emoji) })
+          } catch (err) {
+            log.error(
+              `[WhatsAppGateway] Failed to set profile picture for ${chat.gatewayChannel} using emoji ${emoji}`,
+              err
+            )
+          }
         }
       }
     }
