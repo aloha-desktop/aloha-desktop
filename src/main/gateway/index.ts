@@ -31,8 +31,11 @@ export async function initializeGateway(): Promise<void> {
   }
 
   try {
-    gatewayInstance = new SUPPORTED_GATEWAYS[gatewayName]()
-    await gatewayInstance?.initialize()
+    if (!gatewayInstance || gatewayInstance.constructor.name !== SUPPORTED_GATEWAYS[gatewayName].name) {
+      await gatewayInstance?.destroy()
+      gatewayInstance = new SUPPORTED_GATEWAYS[gatewayName]()
+      await gatewayInstance?.initialize()
+    }
   } catch (err) {
     log.error(`Failed to initialized gateway: ${gatewayName}`, err)
     throw err
