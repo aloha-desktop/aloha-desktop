@@ -107,7 +107,11 @@ export class WhatsAppGateway extends Gateway {
               const iconPath = app.isPackaged
                 ? path.join(process.resourcesPath, 'icon-white.png')
                 : path.join(app.getAppPath(), 'resources', 'icon-white.png')
-              await this.sock!.updateProfilePicture(this.groupId, { url: iconPath })
+              try {
+                await this.sock!.updateProfilePicture(this.groupId, { url: iconPath })
+              } catch (err) {
+                log.error(`[WhatsAppGateway] Failed to set profile picture for main group chat.`, err)
+              }
             } else {
               this.groupId = existingGroup.id
             }
@@ -169,8 +173,8 @@ export class WhatsAppGateway extends Gateway {
     const codePoints = Array.from(emoji)
       .map((ch) => ch.codePointAt(0)!.toString(16))
       .filter((cp) => !['fe0f', 'fe0e'].includes(cp))
-    const fileName = `emoji_u${codePoints.join('_')}.png`
-    return `https://raw.githubusercontent.com/googlefonts/noto-emoji/refs/heads/main/png/72/${fileName}`
+    const fileName = `emoji_u${codePoints.join('_')}.svg`
+    return `https://raw.githubusercontent.com/googlefonts/noto-emoji/refs/heads/main/svg/${fileName}`
   }
 
   async destroy(): Promise<void> {
