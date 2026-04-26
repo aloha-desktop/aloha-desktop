@@ -9,14 +9,15 @@ Generate a concise, 3-5 word title with an emoji summarizing the chat history.
 - Your entire response must consist solely of the JSON object, without any introductory or concluding text.
 - The output must be a single, raw JSON object, without any markdown code fences or other encapsulating text.
 - Ensure no conversational text, affirmations, or explanations precede or follow the raw JSON output, as this will cause direct parsing failure.
+- Never include anything else than a single JSON object described in the output section. It will cause parsing failure.
 ### Output:
 JSON format: { "title": "your concise title here" }
 ### Examples:
 - { "title": "📉 Stock Market Trends" },
 - { "title": "🍪 Perfect Chocolate Chip Recipe" },
-- { "title": "Evolution of Music Streaming" },
-- { "title": "Remote Work Productivity Tips" },
-- { "title": "Artificial Intelligence in Healthcare" },
+- { "title": "🎵 Evolution of Music Streaming" },
+- { "title": "🧑‍💻 Remote Work Productivity Tips" },
+- { "title": "💊 Artificial Intelligence in Healthcare" },
 - { "title": "🎮 Video Game Development Insights" }
 ### Chat History:
 {{MESSAGES}}`
