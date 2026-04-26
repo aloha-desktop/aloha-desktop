@@ -11,6 +11,8 @@ import { useUpdater } from './updater'
 import { useSetup } from './setup'
 import { useGateway } from './gateway'
 import { windowEmitter } from './window-emitter'
+import { ipcMain } from 'electron'
+import path from 'path'
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -46,6 +48,16 @@ function createWindow(): BrowserWindow {
   }
 
   mainWindow.maximize()
+
+  // handle file:// links
+  ipcMain.handle('open-file', async (_event, filePath: string) => {
+    if (!filePath.startsWith('file://')) {
+      throw new Error('The file path should start with file://')
+    }
+
+    const purePath = path.normalize(decodeURI(filePath).substring(7))
+    shell.showItemInFolder(purePath)
+  })
 
   // handling target="_blank"
   mainWindow.webContents.setWindowOpenHandler((details) => {

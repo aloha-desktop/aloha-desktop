@@ -46,6 +46,16 @@ md.use(
   )
 )
 
+// file links are disallowed by default, so we need to allow them explicitly
+// file links are handled globally in electron.ts
+const originalValidateLink = md.validateLink
+md.validateLink = function (url: string) {
+  if (url.trim().toLowerCase().startsWith('file://')) {
+    return true
+  }
+  return originalValidateLink(url)
+}
+
 export default defineComponent({
   inject: ['asyncComponentLoading', 'asyncComponentResolved'],
   props: {

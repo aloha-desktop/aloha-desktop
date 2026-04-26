@@ -90,3 +90,13 @@ export const electron = {
     app.config.globalProperties.$electron = window.electron
   },
 }
+
+// file links are disallowed by default by chromium, so we have to capture file link click and send them directly to main process
+// otherwise they will be blocked by the default web security policy
+window.addEventListener('click', async (e) => {
+  const target = e.target as HTMLElement
+  if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('file://')) {
+    e.preventDefault()
+    window.electron.ipcRenderer.invoke('open-file', target.getAttribute('href')!)
+  }
+})
