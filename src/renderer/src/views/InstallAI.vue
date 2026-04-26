@@ -67,7 +67,12 @@ export default defineComponent({
   data() {
     return {
       onHoldMessage: 'Please wait...',
-      corePlugins: ['aloha-desktop/aloha-internet-search', 'aloha-desktop/aloha-visit-website'],
+      corePlugins: [
+        'aloha-desktop/aloha-internet-search',
+        'aloha-desktop/aloha-visit-website',
+        'aloha-desktop/aloha-smartwatch',
+        'aloha-desktop/aloha-file-explorer',
+      ],
       engineServeProgress: null as ProgressStatus | null,
       modelPullProgress: null as ProgressStatus | null,
       corePluginsProgress: null as ProgressStatus | null,

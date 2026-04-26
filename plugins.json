@@ -12,5 +12,19 @@
         "author": "Aloha",
         "description": "The agent can visit a website url on the internet directly to provide more accurate results",
         "icon": "https://raw.githubusercontent.com/aloha-desktop/aloha-visit-website/refs/heads/main/public/icon.svg"
+    },
+    {
+        "repo": "aloha-desktop/aloha-file-explorer",
+        "name": "File Explorer",
+        "author": "Aloha",
+        "description": "Search for files on your computer",
+        "icon": "https://raw.githubusercontent.com/aloha-desktop/aloha-file-explorer/refs/heads/main/public/icon.svg"
+    },
+    {
+        "repo": "aloha-desktop/aloha-smartwatch",
+        "name": "Smartwatch",
+        "author": "Aloha",
+        "description": "Get the current time",
+        "icon": "https://raw.githubusercontent.com/aloha-desktop/aloha-smartwatch/refs/heads/main/public/icon.svg"
     }
 ]

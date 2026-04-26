@@ -25,6 +25,8 @@ Get Aloha Desktop on [alohadesktop.com](https://alohadesktop.com/)
 ## Core Plugins
 - [aloha-visit-website](https://github.com/aloha-desktop/aloha-visit-website)
 - [aloha-internet-search](https://github.com/aloha-desktop/aloha-internet-search)
+- [aloha-smartwatch](https://github.com/aloha-desktop/aloha-smartwatch)
+- [aloha-file-explorer](https://github.com/aloha-desktop/aloha-file-explorer)
 
 ## Plugin Examples
 - [aloha-stock-trade](https://github.com/aloha-desktop/aloha-stock-trade)
