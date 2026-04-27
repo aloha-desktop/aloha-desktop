@@ -26,7 +26,7 @@ import path from 'path'
 import { app } from 'electron'
 import mime from 'mime-types'
 import { fileURLToPath } from 'url'
-import { extractMarkdownLinks } from './content-extractor'
+import { extractMarkdownLinks, formatMarkdown } from './content-extractor'
 
 export const WHATSAPP_GATEWAY_NAME = 'whatsapp'
 const REINITIALIZE_TIMOUT = 15000 // 15 seconds
@@ -320,7 +320,7 @@ export class WhatsAppGateway extends Gateway {
             await this.sock!.sendMessage(chat.gatewayChannel, this.toolCallMessageContent(msg, content))
           } else if (content) {
             // only non empty content and not tool call reponse
-            await this.sock!.sendMessage(chat.gatewayChannel, { text: this.formatMarkdown(content) })
+            await this.sock!.sendMessage(chat.gatewayChannel, { text: formatMarkdown(content) })
           }
         }
       }
@@ -343,65 +343,5 @@ export class WhatsAppGateway extends Gateway {
         }
       }
     }
-  }
-
-  formatMarkdown(content: string): string {
-    if (!content) return content
-    let result = content
-
-    // Protect triple-backtick code blocks from inline transforms.
-    // WhatsApp uses the exact same ``` syntax for monospace blocks.
-    const codeBlocks: string[] = []
-    result = result.replace(/```[\s\S]*?```/g, (match) => {
-      const idx = codeBlocks.push(match) - 1
-      return `\x00CB${idx}\x00`
-    })
-
-    // Protect inline code from inline transforms.
-    // WhatsApp uses the exact same backtick syntax.
-    const inlineCodes: string[] = []
-    result = result.replace(/`[^`\n]+`/g, (match) => {
-      const idx = inlineCodes.push(match) - 1
-      return `\x00IC${idx}\x00`
-    })
-
-    // Images: keep alt text, discard URL — WA can't render inline MD images
-    result = result.replace(/!\[([^\]]*)\]\([^)]+\)/g, (_, alt) => alt)
-
-    // Links: [text](url) → text (url)
-    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
-
-    // Bold + italic (***text*** or ___text___) → *_text_*
-    // Must run before the individual bold and italic passes.
-    result = result.replace(/\*{3}([^*\n]+?)\*{3}/g, '*_$1_*')
-    result = result.replace(/_{3}([^_\n]+?)_{3}/g, '*_$1_*')
-
-    // Italic (*text* with single asterisks) → _text_
-    // Lookahead/lookbehind prevents matching the asterisks that are part of **bold**.
-    // Must run before bold so that **text** is never misidentified here.
-    result = result.replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '_$1_')
-
-    // Bold (**text** or __text__) → *text*
-    result = result.replace(/\*\*([^*\n]+?)\*\*/g, '*$1*')
-    result = result.replace(/__([^_\n]+?)__/g, '*$1*')
-
-    // Strikethrough (~~text~~) → ~text~
-    result = result.replace(/~~([^~\n]+?)~~/g, '~$1~')
-
-    // Headings (# through ######) → bold text
-    result = result.replace(/^#{1,6}\s+(.+)$/gm, '*$1*')
-
-    // Horizontal rules (--- / *** / ___) → remove entirely
-    result = result.replace(/^[-*_]{3,}\s*$/gm, '')
-
-    // Restore inline code and code blocks
-    inlineCodes.forEach((code, i) => {
-      result = result.replace(`\x00IC${i}\x00`, code)
-    })
-    codeBlocks.forEach((block, i) => {
-      result = result.replace(`\x00CB${i}\x00`, block)
-    })
-
-    return result.trim()
   }
 }
