@@ -16,6 +16,7 @@ import {
   WAMessageKey,
   fetchLatestBaileysVersion,
   WAMessage,
+  AnyMessageContent,
 } from 'baileys'
 import log from 'electron-log'
 import { ToolCall } from 'ollama/dist/index.cjs'
@@ -23,6 +24,9 @@ import { ChatMessage } from '@common/types/chat-message'
 import { getChat } from '../storage/chat-crud'
 import path from 'path'
 import { app } from 'electron'
+import mime from 'mime-types'
+import { fileURLToPath } from 'url'
+import { extractMarkdownLinks } from './content-extractor'
 
 export const WHATSAPP_GATEWAY_NAME = 'whatsapp'
 const REINITIALIZE_TIMOUT = 15000 // 15 seconds
@@ -244,6 +248,56 @@ export class WhatsAppGateway extends Gateway {
     await chatRun(chat.uuid)
   }
 
+  toolCallMessageContent(msg: ChatMessage, content: string): AnyMessageContent {
+    const title = `Used ${msg.metadata?.displayName || 'a tool'}`
+    const textLines: string[] = [title]
+
+    const links = extractMarkdownLinks(content)
+
+    const httpLinks = links.filter((link) => link.url.startsWith('http'))
+    const fileLinks = links.filter((link) => link.url.startsWith('file'))
+
+    if (httpLinks.length > 0) {
+      textLines.push('\nLinks:')
+      httpLinks.forEach((link) => {
+        textLines.push(`- ${link.text} (${link.url})`)
+      })
+    }
+
+    if (fileLinks.length > 0) {
+      textLines.push('\nFiles:')
+      fileLinks.forEach((link) => {
+        textLines.push(`- ${link.text}`)
+      })
+
+      try {
+        const firstFileUrl = fileLinks[0].url
+        const fileName = fileLinks[0].text
+        const filePath = fileURLToPath(firstFileUrl)
+        const fileExtension = path.extname(filePath)
+        if (!fileExtension) {
+          throw new Error('File extension not found')
+        }
+        const mimetype = mime.lookup(filePath) || 'application/octet-stream'
+
+        textLines.push(`\nAttached: ${fileLinks[0].text}`)
+
+        return {
+          document: { url: filePath },
+          mimetype,
+          fileName,
+          caption: textLines.join('\n'),
+        } as AnyMessageContent
+      } catch (error) {
+        // if something goes wrong, just send the text
+        log.error('Failed to send file attachment. Falling back to text message.', error)
+        return { text: textLines.join('\n') }
+      }
+    }
+
+    return { text: textLines.join('\n') }
+  }
+
   async sendMessage(channel: string, ...args: unknown[]): Promise<void> {
     if (channel === 'llm:chat-message') {
       const [msg, contentChunks, , , , doneStreaming] = args as [
@@ -263,9 +317,7 @@ export class WhatsAppGateway extends Gateway {
           const content = contentChunks.join('')
           if (msg.role === 'tool') {
             // special handling for tool response
-            await this.sock!.sendMessage(chat.gatewayChannel, {
-              text: `Used ${msg.metadata?.displayName || 'a tool'}`,
-            })
+            await this.sock!.sendMessage(chat.gatewayChannel, this.toolCallMessageContent(msg, content))
           } else if (content) {
             // only non empty content and not tool call reponse
             await this.sock!.sendMessage(chat.gatewayChannel, { text: this.formatMarkdown(content) })
