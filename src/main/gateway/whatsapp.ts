@@ -206,7 +206,7 @@ export class WhatsAppGateway extends Gateway {
     if (!chat) {
       return // chat with this channel not found
     }
-    await this.sock!.sendMessage(gatewayChannel, { react: { text: '💡', key: originalMsg.key } })
+    await this.sock!.sendMessage(gatewayChannel, { react: { text: '🧠', key: originalMsg.key } })
     await createMessage(text, chat.uuid)
     await chatRun(chat.uuid)
   }
@@ -234,7 +234,7 @@ export class WhatsAppGateway extends Gateway {
     await this.sock!.sendMessage(this.groupId!, { text: '' }, { quoted: newChatMsg })
 
     // react with thinking to the new message
-    await this.sock!.sendMessage(group.id, { react: { text: '💡', key: newChatMsg?.key } })
+    await this.sock!.sendMessage(group.id, { react: { text: '🧠', key: newChatMsg?.key } })
 
     const chat = await createChat(text!, WHATSAPP_GATEWAY_NAME, group.id)
     if (!chat) {
