@@ -221,6 +221,10 @@ export class WhatsAppGateway extends Gateway {
     // create new group
     const newGroupSubject = `New Chat (${this.computerName})`
     const group = await this.sock!.groupCreate(newGroupSubject, [])
+    await this.sock!.groupUpdateDescription(
+      group.id,
+      `This is a chat thread created by Aloha Desktop on '${this.computerName}' computer.`
+    )
     const newChatMsg = await this.sock!.sendMessage(
       group.id, // in new group
       { text }
