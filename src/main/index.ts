@@ -49,16 +49,6 @@ function createWindow(): BrowserWindow {
 
   mainWindow.maximize()
 
-  // handle file:// links
-  ipcMain.handle('open-file', async (_event, filePath: string) => {
-    if (!filePath.startsWith('file://')) {
-      throw new Error('The file path should start with file://')
-    }
-
-    const purePath = path.normalize(decodeURI(filePath).substring(7))
-    shell.showItemInFolder(purePath)
-  })
-
   // handling target="_blank"
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -99,6 +89,16 @@ app.whenReady().then(async () => {
   useUpdater()
   useSetup()
   useGateway()
+
+  // handle file:// links
+  ipcMain.handle('open-file', async (_event, filePath: string) => {
+    if (!filePath.startsWith('file://')) {
+      throw new Error('The file path should start with file://')
+    }
+
+    const purePath = path.normalize(decodeURI(filePath).substring(7))
+    shell.showItemInFolder(purePath)
+  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
