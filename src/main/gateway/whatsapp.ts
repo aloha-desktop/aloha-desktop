@@ -177,8 +177,8 @@ export class WhatsAppGateway extends Gateway {
     const codePoints = Array.from(emoji)
       .map((ch) => ch.codePointAt(0)!.toString(16))
       .filter((cp) => !['fe0f', 'fe0e'].includes(cp))
-    const fileName = `emoji_u${codePoints.join('_')}.svg`
-    return `https://raw.githubusercontent.com/googlefonts/noto-emoji/refs/heads/main/svg/${fileName}`
+    const fileName = `emoji_u${codePoints.join('_')}.png`
+    return `https://raw.githubusercontent.com/googlefonts/noto-emoji/refs/heads/main/png/128/${fileName}`
   }
 
   async destroy(): Promise<void> {
