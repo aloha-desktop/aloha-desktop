@@ -15,7 +15,7 @@ export function extractMarkdownLinks(content: string): ContentLinks {
   return links
 }
 
-export function formatMarkdown(content: string): string {
+export function formatSimplifiedMarkdown(content: string): string {
   if (!content) return content
   let result = content
 
@@ -37,6 +37,9 @@ export function formatMarkdown(content: string): string {
 
   // Images: keep alt text, discard URL — WA can't render inline MD images
   result = result.replace(/!\[([^\]]*)\]\([^)]+\)/g, (_, alt) => alt)
+
+  // File links: [text](file://...) → text only (local paths aren't useful in WA)
+  result = result.replace(/\[([^\]]+)\]\(file:\/\/[^)]+\)/g, '$1')
 
   // Links: [text](url) → text (url)
   result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')

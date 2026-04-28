@@ -26,7 +26,7 @@ import path from 'path'
 import { app } from 'electron'
 import mime from 'mime-types'
 import { fileURLToPath } from 'url'
-import { extractMarkdownLinks, formatMarkdown } from './content-extractor'
+import { extractMarkdownLinks, formatSimplifiedMarkdown } from './content-extractor'
 
 export const WHATSAPP_GATEWAY_NAME = 'whatsapp'
 const REINITIALIZE_TIMOUT = 15000 // 15 seconds
@@ -320,7 +320,7 @@ export class WhatsAppGateway extends Gateway {
             await this.sock!.sendMessage(chat.gatewayChannel, this.toolCallMessageContent(msg, content))
           } else if (content) {
             // only non empty content and not tool call reponse
-            await this.sock!.sendMessage(chat.gatewayChannel, { text: formatMarkdown(content) })
+            await this.sock!.sendMessage(chat.gatewayChannel, { text: formatSimplifiedMarkdown(content) })
           }
         }
       }

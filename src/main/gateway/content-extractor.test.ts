@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { extractMarkdownLinks, formatMarkdown } from './content-extractor'
+import { extractMarkdownLinks, formatSimplifiedMarkdown } from './content-extractor'
 
 describe('extractMarkdownLinks', () => {
   it('should return an empty array if no links are present', () => {
@@ -62,62 +62,62 @@ describe('extractMarkdownLinks', () => {
 
 describe('formatMarkdown', () => {
   it('should return empty string if content is empty', () => {
-    expect(formatMarkdown('')).toBe('')
+    expect(formatSimplifiedMarkdown('')).toBe('')
   })
 
   it('should convert links: [text](url) -> text (url)', () => {
-    expect(formatMarkdown('Check out [Google](https://google.com)')).toBe('Check out Google (https://google.com)')
+    expect(formatSimplifiedMarkdown('Check out [Google](https://google.com)')).toBe('Check out Google (https://google.com)')
   })
 
   it('should convert images: ![alt](url) -> alt', () => {
-    expect(formatMarkdown('Here is an image ![logo](https://example.com/logo.png)')).toBe('Here is an image logo')
+    expect(formatSimplifiedMarkdown('Here is an image ![logo](https://example.com/logo.png)')).toBe('Here is an image logo')
   })
 
   it('should convert bold + italic: ***text*** or ___text___ -> *_text_*', () => {
-    expect(formatMarkdown('This is ***really important***')).toBe('This is *_really important_*')
-    expect(formatMarkdown('This is ___also important___')).toBe('This is *_also important_*')
+    expect(formatSimplifiedMarkdown('This is ***really important***')).toBe('This is *_really important_*')
+    expect(formatSimplifiedMarkdown('This is ___also important___')).toBe('This is *_also important_*')
   })
 
   it('should convert bold: **text** or __text__ -> *text*', () => {
-    expect(formatMarkdown('This is **bold** text')).toBe('This is *bold* text')
-    expect(formatMarkdown('This is __also bold__ text')).toBe('This is *also bold* text')
+    expect(formatSimplifiedMarkdown('This is **bold** text')).toBe('This is *bold* text')
+    expect(formatSimplifiedMarkdown('This is __also bold__ text')).toBe('This is *also bold* text')
   })
 
   it('should convert italic: *text* -> _text_', () => {
-    expect(formatMarkdown('This is *italic* text')).toBe('This is _italic_ text')
+    expect(formatSimplifiedMarkdown('This is *italic* text')).toBe('This is _italic_ text')
   })
 
   it('should prevent confusing italic with bold', () => {
-    expect(formatMarkdown('This is **bold** and *italic*')).toBe('This is *bold* and _italic_')
+    expect(formatSimplifiedMarkdown('This is **bold** and *italic*')).toBe('This is *bold* and _italic_')
   })
 
   it('should convert strikethrough: ~~text~~ -> ~text~', () => {
-    expect(formatMarkdown('This is ~~deleted~~ text')).toBe('This is ~deleted~ text')
+    expect(formatSimplifiedMarkdown('This is ~~deleted~~ text')).toBe('This is ~deleted~ text')
   })
 
   it('should convert headings: # text -> *text*', () => {
-    expect(formatMarkdown('# Heading 1')).toBe('*Heading 1*')
-    expect(formatMarkdown('### Heading 3')).toBe('*Heading 3*')
-    expect(formatMarkdown('###### Heading 6')).toBe('*Heading 6*')
+    expect(formatSimplifiedMarkdown('# Heading 1')).toBe('*Heading 1*')
+    expect(formatSimplifiedMarkdown('### Heading 3')).toBe('*Heading 3*')
+    expect(formatSimplifiedMarkdown('###### Heading 6')).toBe('*Heading 6*')
   })
 
   it('should remove horizontal rules', () => {
-    expect(formatMarkdown('Before\n---\nAfter')).toBe('Before\n\nAfter')
-    expect(formatMarkdown('Before\n***\nAfter')).toBe('Before\n\nAfter')
-    expect(formatMarkdown('Before\n___\nAfter')).toBe('Before\n\nAfter')
+    expect(formatSimplifiedMarkdown('Before\n---\nAfter')).toBe('Before\n\nAfter')
+    expect(formatSimplifiedMarkdown('Before\n***\nAfter')).toBe('Before\n\nAfter')
+    expect(formatSimplifiedMarkdown('Before\n___\nAfter')).toBe('Before\n\nAfter')
   })
 
   it('should protect inline code from markdown formatting', () => {
-    expect(formatMarkdown('Use `**bold** inside code`')).toBe('Use `**bold** inside code`')
+    expect(formatSimplifiedMarkdown('Use `**bold** inside code`')).toBe('Use `**bold** inside code`')
   })
 
   it('should protect code blocks from markdown formatting', () => {
     const codeBlock = '```\n# Not a heading\n**Not bold**\n```'
-    expect(formatMarkdown(codeBlock)).toBe(codeBlock)
+    expect(formatSimplifiedMarkdown(codeBlock)).toBe(codeBlock)
   })
 
   it('should trim the resulting text', () => {
-    expect(formatMarkdown('  **bold**  ')).toBe('*bold*')
+    expect(formatSimplifiedMarkdown('  **bold**  ')).toBe('*bold*')
   })
 
   it('should handle complex markdown combination', () => {
@@ -145,12 +145,51 @@ Image
 **block**
 \`\`\`
 `.trim()
-    expect(formatMarkdown(input)).toBe(expected)
+    expect(formatSimplifiedMarkdown(input)).toBe(expected)
   })
 
   it('should format key concept with emojis and bold', () => {
     const input = `### 🔑 **Key Concept**\nEstimated tax payments are **four quarterly installments** paid to the IRS (and state agencies if applicable) to cover taxes on income not subject to regular withholding (e.g., self-employment, rental income, capital gains).`
     const expected = `*🔑 Key Concept*\nEstimated tax payments are *four quarterly installments* paid to the IRS (and state agencies if applicable) to cover taxes on income not subject to regular withholding (e.g., self-employment, rental income, capital gains).`
-    expect(formatMarkdown(input)).toBe(expected)
+    expect(formatSimplifiedMarkdown(input)).toBe(expected)
+  })
+
+  it('should format file:// links as text only without URL', () => {
+    expect(formatSimplifiedMarkdown('[hotel.pdf](file:///Users/michaelf/Downloads/hotel.pdf)')).toBe('hotel.pdf')
+  })
+
+  it('should format file:// links with encoded characters as text only', () => {
+    const input =
+      '[Booking itinerary - Flight to San Francisco](file:///Users/michaelf/Downloads/2024%20US%20Tax%20Return/Travel/Gmail%20-%20Booking%20itinerary%20_%20eTicket%20#45729934%20-%20Flight%20to%20San%20Francisco.pdf)'
+    expect(formatSimplifiedMarkdown(input)).toBe('Booking itinerary - Flight to San Francisco')
+  })
+
+  it('should format file:// links as text only while keeping HTTP links with URL', () => {
+    const input = 'Check [Google](https://google.com) and [hotel.pdf](file:///Users/michaelf/Downloads/hotel.pdf)'
+    expect(formatSimplifiedMarkdown(input)).toBe('Check Google (https://google.com) and hotel.pdf')
+  })
+
+  it('should handle bold file links as text only', () => {
+    const input =
+      '**[Booking itinerary - Flight to San Francisco](file:///Users/michaelf/Downloads/2024%20US%20Tax%20Return/Travel/Gmail%20-%20Booking%20itinerary%20_%20eTicket%20#45729934%20-%20Flight%20to%20San%20Francisco.pdf)**'
+    expect(formatSimplifiedMarkdown(input)).toBe('*Booking itinerary - Flight to San Francisco*')
+  })
+
+  it('should handle multiple file links in a list', () => {
+    const input = `Here are the most relevant booking reservation files found in your **Downloads** folder:
+
+1. **[Booking itinerary - Flight to San Francisco](file:///Users/michaelf/Downloads/2024%20US%20Tax%20Return/Travel/Gmail%20-%20Booking%20itinerary%20_%20eTicket%20#45729934%20-%20Flight%20to%20San%20Francisco.pdf)**
+   *(Contains flight reservations with eTicket #45729934)*
+
+2. **[hotel.pdf](file:///Users/michaelf/Downloads/hotel.pdf)**
+   *(Direct booking confirmation file)*`
+    const expected = `Here are the most relevant booking reservation files found in your *Downloads* folder:
+
+1. *Booking itinerary - Flight to San Francisco*
+   _(Contains flight reservations with eTicket #45729934)_
+
+2. *hotel.pdf*
+   _(Direct booking confirmation file)_`
+    expect(formatSimplifiedMarkdown(input)).toBe(expected)
   })
 })
