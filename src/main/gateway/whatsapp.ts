@@ -36,7 +36,7 @@ export class WhatsAppGateway extends Gateway {
   private groupId?: string
   private qrCode?: string = ''
   private status?: string
-  private computerName: string = os.hostname()
+  private computerName: string = process.env['HOST'] || os.hostname()
   private authStatePath = path.join(app.getPath('userData'), 'whatsapp-auth-state')
 
   // external map to store retry counts of messages when decryption/encryption fails
