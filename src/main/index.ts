@@ -13,8 +13,13 @@ import { useGateway } from './gateway'
 import { windowEmitter } from './window-emitter'
 import { ipcMain } from 'electron'
 import path from 'path'
+import os from 'os'
 
-const TRAY_ICON_FILE_NAME = 'iconTemplate.png'
+const TRAY_ICON_FILE_NAME: Record<'win32' | 'darwin' | 'linux', string> = {
+  win32: 'win.ico',
+  darwin: 'iconTemplate.png',
+  linux: 'icon-512px.png',
+}
 
 let tray: Tray | null = null
 let mainWindowInstance: BrowserWindow | null = null
@@ -116,10 +121,11 @@ app.whenReady().then(async () => {
   useGateway()
 
   // Setup Tray
+  const trayIconFileName = TRAY_ICON_FILE_NAME[os.platform()]
   const trayIcon = nativeImage.createFromPath(
     app.isPackaged
-      ? path.resolve(process.resourcesPath, './tray/', TRAY_ICON_FILE_NAME)
-      : path.resolve(__dirname, '../../resources/tray/', TRAY_ICON_FILE_NAME)
+      ? path.resolve(process.resourcesPath, './tray/', trayIconFileName)
+      : path.resolve(__dirname, '../../resources/tray/', trayIconFileName)
   )
   tray = new Tray(trayIcon)
   tray.setToolTip('Aloha Desktop')
