@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, Tray, nativeImage } from 'electron'
+import { app, shell, BrowserWindow, Tray, nativeImage, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -149,6 +149,28 @@ app.whenReady().then(async () => {
   tray = new Tray(trayIcon)
   tray.setToolTip('Aloha Desktop')
   tray.on('click', focusOrCreateWindow)
+
+  // On Windows, show a context menu only on right-click so the left-click
+  // continues to open/focus the window.
+  if (process.platform === 'win32') {
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'Open Aloha Desktop',
+        click: focusOrCreateWindow,
+      },
+      { type: 'separator' },
+      {
+        label: 'Quit',
+        click: () => {
+          isQuitting = true
+          app.quit()
+        },
+      },
+    ])
+    tray.on('right-click', () => {
+      tray!.popUpContextMenu(contextMenu)
+    })
+  }
 
   // handle file:// links
   ipcMain.handle('open-file', async (_event, filePath: string) => {
