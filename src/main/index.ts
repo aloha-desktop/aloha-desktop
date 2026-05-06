@@ -25,6 +25,26 @@ let tray: Tray | null = null
 let mainWindowInstance: BrowserWindow | null = null
 let isQuitting = false
 
+function focusOrCreateWindow(): void {
+  if (mainWindowInstance && !mainWindowInstance.isDestroyed()) {
+    if (mainWindowInstance.isMinimized()) mainWindowInstance.restore()
+    mainWindowInstance.show()
+    mainWindowInstance.focus()
+  } else {
+    mainWindowInstance = createWindow()
+  }
+}
+
+// Enforce single instance — must be called before app.whenReady()
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  // Another instance is already running; quit this one immediately.
+  app.quit()
+} else {
+  // A second instance tried to launch — focus the existing window instead.
+  app.on('second-instance', focusOrCreateWindow)
+}
+
 function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -129,14 +149,7 @@ app.whenReady().then(async () => {
   )
   tray = new Tray(trayIcon)
   tray.setToolTip('Aloha Desktop')
-  tray.on('click', () => {
-    if (mainWindowInstance && !mainWindowInstance.isDestroyed()) {
-      mainWindowInstance.show()
-      mainWindowInstance.focus()
-    } else {
-      mainWindowInstance = createWindow()
-    }
-  })
+  tray.on('click', focusOrCreateWindow)
 
   // handle file:// links
   ipcMain.handle('open-file', async (_event, filePath: string) => {
@@ -148,15 +161,9 @@ app.whenReady().then(async () => {
     shell.showItemInFolder(purePath)
   })
 
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
-      mainWindowInstance = createWindow()
-    } else if (mainWindowInstance) {
-      mainWindowInstance.show()
-    }
-  })
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  app.on('activate', focusOrCreateWindow)
 })
 
 // Keep app running in the background for all platforms when all windows are closed.
