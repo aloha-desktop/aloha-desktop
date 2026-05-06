@@ -13,7 +13,6 @@ import { useGateway } from './gateway'
 import { windowEmitter } from './window-emitter'
 import { ipcMain } from 'electron'
 import path from 'path'
-import os from 'os'
 
 const TRAY_ICON_FILE_NAME: Record<'win32' | 'darwin' | 'linux', string> = {
   win32: 'win.ico',
@@ -141,7 +140,7 @@ app.whenReady().then(async () => {
   useGateway()
 
   // Setup Tray
-  const trayIconFileName = TRAY_ICON_FILE_NAME[os.platform()]
+  const trayIconFileName = TRAY_ICON_FILE_NAME[process.platform]
   const trayIcon = nativeImage.createFromPath(
     app.isPackaged
       ? path.resolve(process.resourcesPath, './tray/', trayIconFileName)
