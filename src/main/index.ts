@@ -13,6 +13,7 @@ import { useGateway } from './gateway'
 import { windowEmitter } from './window-emitter'
 import { ipcMain } from 'electron'
 import path from 'path'
+import fs from 'fs'
 
 const TRAY_ICON_FILE_NAME: Record<'win32' | 'darwin' | 'linux', string> = {
   win32: 'win.ico',
@@ -170,6 +171,31 @@ app.whenReady().then(async () => {
     tray.on('right-click', () => {
       tray!.popUpContextMenu(contextMenu)
     })
+  }
+
+  // Show a one-time balloon tooltip on Windows after first installation.
+  // Uses a flag file instead of the DB because the DB is not yet initialised at this point.
+  if (process.platform === 'win32') {
+    try {
+      const flagFile = path.join(app.getPath('userData'), '.welcome_shown')
+      if (!fs.existsSync(flagFile)) {
+        setTimeout(() => {
+          try {
+            tray!.displayBalloon({
+              title: "Aloha! I'm here when you need me 👋",
+              content: 'Tip: You can pin the Aloha tray icon in your system settings to access it quickly.',
+              iconType: 'info',
+              noSound: true,
+            })
+            fs.writeFileSync(flagFile, '1')
+          } catch {
+            // Balloon tooltips may not be supported on all Windows configurations; fail silently.
+          }
+        }, 3000)
+      }
+    } catch {
+      // Fail silently if the flag file cannot be read/written.
+    }
   }
 
   // handle file:// links
