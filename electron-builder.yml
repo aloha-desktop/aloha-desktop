@@ -41,6 +41,7 @@ linux:
     - deb
   maintainer: alohadesktop.com
   category: Utility
+  icon: build/icons
 appImage:
   artifactName: ${name}-${version}-${arch}.${ext}
 deb:
