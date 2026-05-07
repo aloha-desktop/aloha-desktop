@@ -9,30 +9,7 @@ on:
       - "v*.*.*"
 
 jobs:
-  build-linux-arm:
-    runs-on: ubuntu-24.04-arm
-    container: electronuserland/builder:latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-      - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-      - run: npm run build:linux
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-linux-x64:
+  build-linux:
     runs-on: ubuntu-latest
     container: electronuserland/builder:latest
     steps:
@@ -55,9 +32,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-windows-x64:
+  build-windows:
     runs-on: windows-latest
-    needs: build-linux-x64
+    needs: build-linux
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -81,41 +58,41 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-  # build-mac:
-  #   runs-on: macos-latest
-  #   needs: build-windows-x64
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 22
-  #     - name: Cache node_modules
-  #       id: cache-node-modules
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: node_modules
-  #         key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-node-modules-
-  #     - name: Install dependencies
-  #       if: steps.cache-node-modules.outputs.cache-hit != 'true'
-  #       run: npm ci
-  #     - uses: apple-actions/import-codesign-certs@v3
-  #       with:
-  #         p12-file-base64: ${{ secrets.APPLE_DEVELOPER_ID_P12_BASE64 }}
-  #         p12-password: ${{ secrets.APPLE_DEVELOPER_ID_P12_PASSWORD }}
-  #     - run: |
-  #         # Decode base64 encoded files
-  #         echo -n $APPLE_API_KEY_BASE64 | base64 --decode --output $APPLE_API_KEY
+  build-mac:
+    runs-on: macos-latest
+    needs: build-windows
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+      - uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_DEVELOPER_ID_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_DEVELOPER_ID_P12_PASSWORD }}
+      - run: |
+          # Decode base64 encoded files
+          echo -n $APPLE_API_KEY_BASE64 | base64 --decode --output $APPLE_API_KEY
 
-  #         # Test if files exist
-  #         test -f $APPLE_API_KEY
-  #       env:
-  #         APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
-  #         APPLE_API_KEY: ${{ runner.temp }}/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-  #     - run: npm run build:mac
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         APPLE_API_KEY: ${{ runner.temp }}/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-  #         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-  #         APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          # Test if files exist
+          test -f $APPLE_API_KEY
+        env:
+          APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          APPLE_API_KEY: ${{ runner.temp }}/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
+      - run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_API_KEY: ${{ runner.temp }}/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
