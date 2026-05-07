@@ -35,13 +35,14 @@ mac: # for local build app-only: npm run build:mac -- dir -p never -c.mac.identi
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
+  executableName: aloha-desktop
   target:
     - AppImage
     # - snap
     - deb
   maintainer: alohadesktop.com
   category: Utility
-  icon: build/icons
+  icon: build/icon.icns
 appImage:
   artifactName: ${name}-${version}-${arch}.${ext}
 deb:

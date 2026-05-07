@@ -1,7 +1,6 @@
 import { app, shell, BrowserWindow, Tray, nativeImage, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
 import { useTerminal } from './terminal'
 import { useLLM } from './llm'
 import { useStorage } from './storage'
@@ -52,7 +51,7 @@ function createWindow(): BrowserWindow {
     height: 670,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon: join(process.resourcesPath, 'icon.png') } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
@@ -116,7 +115,7 @@ function createWindow(): BrowserWindow {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.alohadesktop.app')
 
   // When the user triggers a real quit (e.g. Cmd+Q), allow windows to close.
   app.on('before-quit', () => {
