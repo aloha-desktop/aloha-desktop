@@ -24,7 +24,7 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
-mac:
+mac: # for local build app-only: npm run build:mac -- dir -p never -c.mac.identity=null
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -35,14 +35,18 @@ mac:
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
+  executableName: aloha-desktop
   target:
     - AppImage
     # - snap
     - deb
   maintainer: alohadesktop.com
   category: Utility
+  icon: build/icon.icns
 appImage:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-${arch}.${ext}
+deb:
+  artifactName: ${name}-${version}-${arch}.${ext}
 npmRebuild: false
 publish:
   provider: github
