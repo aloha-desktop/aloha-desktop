@@ -17,7 +17,7 @@ import path from 'path'
 const TRAY_ICON_FILE_NAME: Record<'win32' | 'darwin' | 'linux', string> = {
   win32: 'win.ico',
   darwin: 'iconTemplate.png',
-  linux: 'icon-512px.png',
+  linux: 'icon-white.png',
 }
 
 let tray: Tray | null = null
